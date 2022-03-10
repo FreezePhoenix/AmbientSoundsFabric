@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Charsets;
@@ -177,7 +179,7 @@ public class AmbientEngine {
     protected transient LinkedHashMap<String, AmbientSound> sounds = new LinkedHashMap<>();
     public transient HashMap<String, AmbientBlockGroup> groups = new HashMap<>();
     
-    protected transient List<String> silentDimensions = new ArrayList<>();
+    public transient List<String> silentDimensions = new ArrayList<>();
     
     protected transient AmbientSoundEngine soundEngine;
     

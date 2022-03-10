@@ -8,26 +8,21 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 
+import com.mojang.blaze3d.audio.Channel;
+import com.mojang.blaze3d.audio.SoundBuffer;
+import net.minecraft.client.sounds.AudioStream;
+import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
-
-import com.mojang.blaze3d.audio.Channel;
 
 import net.minecraft.client.Options;
 import net.minecraft.client.sounds.LoopingAudioStream;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.ambientsounds.AmbientSound.SoundStream;
+import team.creative.ambientsounds.mixin.ChannelAccessor;
+import team.creative.ambientsounds.mixin.LoopingAudioStreamAccessor;
 
 public class AmbientSoundEngine {
-    
-    private static final Field sourceField = ObfuscationReflectionHelper.findField(Channel.class, "f_83642_");
-    private static final Field streamField = ObfuscationReflectionHelper.findField(Channel.class, "f_83645_");
-    private static final Field bufferedInputStreamField = ObfuscationReflectionHelper.findField(LoopingAudioStream.class, "f_120161_");
-    
     public SoundManager manager;
     public Options options;
     
@@ -42,7 +37,7 @@ public class AmbientSoundEngine {
     public AmbientSoundEngine(SoundManager manager, Options options) {
         this.options = options;
         this.manager = manager;
-        MinecraftForge.EVENT_BUS.register(this);
+//        MinecraftForge.EVENT_BUS.register(this);
     }
     
     public void tick() {
@@ -113,20 +108,20 @@ public class AmbientSoundEngine {
         }
     }
     
-    @SubscribeEvent
-    public void play(PlayStreamingSourceEvent event) {
-        if (event.getSound() instanceof SoundStream stream && stream.loop() && stream.duration != -1) {
+//    @SubscribeEvent
+    public void play(AudioStream a, Channel b) {
+        if (a instanceof SoundStream stream && stream.loop() && stream.duration != -1) {
             try {
-                int source = sourceField.getInt(event.getChannel());
-                LoopingAudioStream looping = (LoopingAudioStream) streamField.get(event.getChannel());
-                BufferedInputStream in = (BufferedInputStream) bufferedInputStreamField.get(looping);
+                int source = ((ChannelAccessor) b).getSource();
+                LoopingAudioStream looping = (LoopingAudioStream) ((ChannelAccessor) b).getStream();
+                BufferedInputStream in = (BufferedInputStream) ((LoopingAudioStreamAccessor)looping).getBufferedInputStream();
                 int length = in.available() + AL11.alGetSourcei(source, AL11.AL_BYTE_OFFSET);
                 int offset = (int) (Math.random() * length);
                 AL10.alSourcef(source, AL11.AL_BYTE_OFFSET, offset);
-            } catch (IllegalArgumentException | IllegalAccessException | IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
         }
     }
     

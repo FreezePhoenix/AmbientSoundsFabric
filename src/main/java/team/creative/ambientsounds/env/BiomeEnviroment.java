@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biome.BiomeCategory;
 import team.creative.ambientsounds.AmbientEngine;
+import team.creative.ambientsounds.mixin.BiomeAccessor;
 
 public class BiomeEnviroment {
     
@@ -31,10 +32,10 @@ public class BiomeEnviroment {
             for (int x = -engine.biomeScanCount; x <= engine.biomeScanCount; x++) {
                 for (int z = -engine.biomeScanCount; z <= engine.biomeScanCount; z++) {
                     pos.set(center.getX() + x * engine.biomeScanDistance, center.getY(), center.getZ() + z * engine.biomeScanDistance);
-                    Biome biome = level.getBiome(pos);
+                    Biome biome = level.getBiome(pos).value();
                     
                     float biomeVolume = (float) ((1 - Math.sqrt(center.distSqr(pos)) / (engine.biomeScanCount * engine.biomeScanDistance * 2)) * volume);
-                    if (biome.getBiomeCategory() != BiomeCategory.UNDERGROUND)
+                    if (((BiomeAccessor) (Object) biome).invokeGetBiomeCategory() != BiomeCategory.UNDERGROUND)
                         biomeVolume *= surface;
                     BiomeArea area = new BiomeArea(level, biome, pos);
                     Float before = biomes.get(area);
@@ -51,7 +52,7 @@ public class BiomeEnviroment {
                     return o1.getValue().compareTo(o2.getValue());
                 }
             });
-            for (Map.Entry<BiomeArea, Float> entry : entries)
+            for (Entry<BiomeArea, Float> entry : entries)
                 this.biomes.put(entry.getKey(), entry.getValue());
         }
     }
@@ -70,7 +71,7 @@ public class BiomeEnviroment {
         
         public boolean checkBiome(String[] names) {
             for (String name : names) {
-                String biomename = biome.getBiomeCategory().getName().toLowerCase().replace("_", " ");
+                String biomename = ((BiomeAccessor) (Object) biome).invokeGetBiomeCategory().getName().toLowerCase().replace("_", " ");
                 if (biomename.matches(".*" + name.replace("*", ".*") + ".*"))
                     return true;
                 

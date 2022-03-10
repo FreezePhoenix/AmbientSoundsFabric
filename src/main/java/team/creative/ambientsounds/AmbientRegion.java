@@ -21,7 +21,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import team.creative.ambientsounds.env.AmbientEnviroment;
 
 public class AmbientRegion extends AmbientCondition {
-    
+
     public String name;
     public transient double volumeSetting = 1;
     public AmbientStackType stack = AmbientStackType.overwrite;
