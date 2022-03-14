@@ -23,7 +23,12 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "creativemd:CreativeCoreFabric:2.5.1"
+    if(findProject(":CreativeCoreFabric") != null) {
+        project.evaluationDependsOn(":CreativeCoreFabric")
+        implementation project(":CreativeCoreFabric")
+    } else {
+        modImplementation "creativemd:CreativeCoreFabric:2.5.2"
+    }
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
